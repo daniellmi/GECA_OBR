@@ -127,7 +127,7 @@ void ReadLdrOnGreen() {
       colorRight = 'G';
     
   else 
-    colorRight = 'B';
+    colorRight = 'W';
   
   }
   if (valueSubtractionLED2G < valueSubtractionLED2R && valueSubtractionLED2G < valueSubtractionLED2B) {
@@ -141,7 +141,7 @@ void ReadLdrOnGreen() {
       colorLeft = 'G';
    
   else 
-    colorLeft = 'B';
+    colorLeft = 'W';
 
 }
   }

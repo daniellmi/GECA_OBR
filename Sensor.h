@@ -1,9 +1,7 @@
 #ifndef SENSOR_H
 #define SENSOR_H
-#include <Ultrasonic.h>
 
-#define trigger 24
-#define echo 22
+#include <Ultrasonic.h>
 
 class Sensor{
 
@@ -12,7 +10,7 @@ class Sensor{
 
 public:
 
-  Sensor(): ultra(trigger, echo) {
+  Sensor(const int trigger, const int echo): ultra(trigger,echo) {
     pinMode(trigger, OUTPUT);
     pinMode(echo, INPUT);
   }
