@@ -56,7 +56,7 @@ void calibratingLeds() {
   delay(100);
   LEFT_RED_WHITE_VALUE = analogRead(LEFT_LDR);
   RIGHT_RED_WHITE_VALUE = analogRead(RIGHT_LDR);
-  delay(1000);
+  delay(10);
   digitalWrite(LEFT_RED, HIGH);
   digitalWrite(RIGHT_RED, HIGH);
 
@@ -65,7 +65,7 @@ void calibratingLeds() {
   delay(100);
   LEFT_GREEN_WHITE_VALUE = analogRead(LEFT_LDR);
   RIGHT_GREEN_WHITE_VALUE = analogRead(RIGHT_LDR);
-  delay(1000);
+  delay(10);
   digitalWrite(LEFT_GREEN, HIGH);
   digitalWrite(RIGHT_GREEN, HIGH);
 
@@ -74,7 +74,7 @@ void calibratingLeds() {
   delay(100);
   LEFT_BLUE_WHITE_VALUE = analogRead(LEFT_LDR);
   RIGHT_BLUE_WHITE_VALUE = analogRead(RIGHT_LDR);
-  delay(1000);
+  delay(10);
   digitalWrite(LEFT_BLUE, HIGH);
   digitalWrite(RIGHT_BLUE, HIGH);
 }

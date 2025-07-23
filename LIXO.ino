@@ -24,8 +24,8 @@ Sensor sensor(trigPin,echoPin);
 Functions functions;
 
 void Functions::intersection(int d) {
-        int count = 1;
 
+        int count = 1;
         motor.go(100,100);
         delay(400);
         motor.stop();
@@ -42,9 +42,9 @@ void Functions::intersection(int d) {
 
           if(max < IR3ValueForIntersection ) max = IR3ValueForIntersection;
           if(max2 < IR2ValueForIntersection) max2 = IR2ValueForIntersection;
-        ++count;
+          ++count;
         }
-        while(count <= 3);
+        while(count <= 4);/
 }
 
 void Functions::redirectObstacle() {
@@ -163,7 +163,6 @@ void loop() {
       
     }
 
-
      else if(analogRead(IR3) > 600 && analogRead(IR4) > 600 && analogRead(IR1) < 450) {
 
 //      ***VERIFICA SE É INTERSEÇÂO***     //
@@ -199,4 +198,3 @@ void loop() {
   motor.go(80, 80);
 
  }
-
