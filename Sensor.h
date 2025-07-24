@@ -3,20 +3,19 @@
 
 #include <Ultrasonic.h>
 
-class Sensor{
+class Sensor : public Ultrasonic {
 
-  Ultrasonic ultra;
-  int distance;
+int distance;
 
 public:
 
-  Sensor(const int trigger, const int echo): ultra(trigger,echo) {
+  Sensor(const int trigger, const int echo): Ultrasonic(trigger,echo) {
     pinMode(trigger, OUTPUT);
     pinMode(echo, INPUT);
   }
 
-  int readtSensor() {
-    distance = ultra.read(CM);
+  int getDistance() {
+    distance = read(CM);
     return distance;
   }
 };

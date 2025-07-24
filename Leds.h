@@ -1,18 +1,22 @@
 #ifndef LEDS_H
 #define LEDS_H
 
-#define LEFT_GREEN 51
-#define LEFT_RED 49 
-#define LEFT_BLUE 53
-
-#define RIGHT_RED 48
-#define RIGHT_GREEN 52
-#define RIGHT_BLUE 50
-
 #define RIGHT_LDR A14
 #define LEFT_LDR A15
 
 class Leds {
+
+public: 
+
+int LEFT_GREEN = 51;
+int LEFT_RED = 49;
+int LEFT_BLUE = 53;
+
+int RIGHT_RED = 48;
+int RIGHT_GREEN = 52;
+int RIGHT_BLUE = 50;
+
+private:
 
 // |--- VALORES DAS LEDS ESQUERDAS NO BRANCO ---|
 int LEFT_RED_WHITE_VALUE; 
@@ -25,6 +29,7 @@ int RIGHT_GREEN_WHITE_VALUE;
 int RIGHT_BLUE_WHITE_VALUE; 
 
 public: 
+
 char colorRight;
 char colorLeft;
 
@@ -116,6 +121,8 @@ void ReadLdrOnGreen() {
  int valueSubtractionLED2G = valueLED2GC - LEFT_GREEN_WHITE_VALUE;
  int valueSubtractionLED2B = valueLED2BC - LEFT_BLUE_WHITE_VALUE;
 
+
+        // **************************FITA VERDE********************** // 
   if (valueSubtractionLED1G < valueSubtractionLED1R && valueSubtractionLED1G < valueSubtractionLED1B) {
 
     //**************************COMPARANDO VALORES DOS VALORES DO LED1**********************
@@ -144,7 +151,18 @@ void ReadLdrOnGreen() {
     colorLeft = 'W';
 
 }
+        // ****************************** *************************** // 
+
+ // **************************FITA VERMELHA********************** // 
+  if(valueSubtractionLED1R < valueSubtractionLED1G && valueSubtractionLED1R < valueSubtractionLED1B)
+  colorRight = 'R';
+
+  if(valueSubtractionLED2R < valueSubtractionLED2G && valueSubtractionLED2R < valueSubtractionLED2B) 
+  colorLeft = 'R';
+    
+        // ******************************* **************************** // 
   }
+  
 };
 
 #endif

@@ -1,9 +1,9 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-
+#include "Motor.h"
 // -- ** --------- --------- -- ------- ---- ** -- //
 
-  struct Functions { 
+struct Functions { 
   void intersection(int d);
   void redirectObstacle();
   void turOnRight90();
