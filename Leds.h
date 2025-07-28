@@ -18,6 +18,18 @@ int RIGHT_BLUE = 50;
 
 private:
 
+// int S0;
+// int S1;
+// int S2;
+// int S3;
+// int pinOut;
+// int pinLed;
+
+// int TCS3200Red;
+// int TCS3200Green;
+// int TCS3200Blue;
+// int TCS3200White;
+
 // |--- VALORES DAS LEDS ESQUERDAS NO BRANCO ---|
 int LEFT_RED_WHITE_VALUE; 
 int LEFT_GREEN_WHITE_VALUE; 
@@ -30,10 +42,12 @@ int RIGHT_BLUE_WHITE_VALUE;
 
 public: 
 
-char colorRight;
-char colorLeft;
+String colorRight;
+String colorLeft;
 
   Leds() {
+      colorLeft = "WHITE";
+      colorRight = "WHITE";
     pinMode(RIGHT_RED, OUTPUT); 
     pinMode(RIGHT_GREEN, OUTPUT); 
     pinMode(RIGHT_BLUE, OUTPUT);
@@ -52,6 +66,25 @@ char colorLeft;
     digitalWrite(LEFT_RED, HIGH);
     digitalWrite(LEFT_GREEN, HIGH);
     digitalWrite(LEFT_BLUE, HIGH);
+
+    //***** SENSOR TCS3200 ***** //
+      // TCS3200Red = 0;
+      // TCS3200Green = 0;
+      // TCS3200Blue = 0;
+      // TCS3200White = 0;
+
+      // pinMode(S0, OUTPUT);
+      // pinMode(S1, OUTPUT);
+      // pinMode(S2, OUTPUT);
+      // pinMode(S3, OUTPUT);
+      // pinMode(pinLed, OUTPUT);
+      // pinMode(pinOut, INPUT);
+
+      // digitalWrite(S0, HIGH);
+      // digitalWrite(S1, LOW);
+
+      // digitalWrite(pinLed, HIGH);
+    //***** ****** ******* ***** //
   }
 
 void calibratingLeds() {
@@ -128,40 +161,59 @@ void ReadLdrOnGreen() {
     //**************************COMPARANDO VALORES DOS VALORES DO LED1**********************
    int Subtraction_Subtraction1D = valueSubtractionLED1R - valueSubtractionLED1G;
    int Subtraction_Subtraction2D = valueSubtractionLED1B - valueSubtractionLED1G;
-   int average1 = (Subtraction_Subtraction1D + Subtraction_Subtraction2D) / 2;
+   int average = (Subtraction_Subtraction1D + Subtraction_Subtraction2D) / 2;
 
-    if (average1 > 20)
-      colorRight = 'G';
-    
-  else 
-    colorRight = 'W';
-  
+    average > 20 ? colorRight = "GREEN" : colorRight = "WHITE";
   }
+
   if (valueSubtractionLED2G < valueSubtractionLED2R && valueSubtractionLED2G < valueSubtractionLED2B) {
 
     //**************************COMPARANDO VALORES DO LED2**********************
    int Subtraction_Subtraction1E = valueSubtractionLED2R - valueSubtractionLED2G;
    int Subtraction_Subtraction2E = valueSubtractionLED2B - valueSubtractionLED2G;
-   int average2 = (Subtraction_Subtraction1E + Subtraction_Subtraction2E) / 2;
+   int average = (Subtraction_Subtraction1E + Subtraction_Subtraction2E) / 2;
 
-    if (average2 > 20) 
-      colorLeft = 'G';
-   
-  else 
-    colorLeft = 'W';
-
+    average > 20 ? colorLeft = "GREEN" : colorLeft = "WHITE";
 }
         // ****************************** *************************** // 
-
- // **************************FITA VERMELHA********************** // 
-  if(valueSubtractionLED1R < valueSubtractionLED1G && valueSubtractionLED1R < valueSubtractionLED1B)
-  colorRight = 'R';
-
-  if(valueSubtractionLED2R < valueSubtractionLED2G && valueSubtractionLED2R < valueSubtractionLED2B) 
-  colorLeft = 'R';
-    
-        // ******************************* **************************** // 
   }
+
+
+// void TCS3200() {
+//   int pulse = digitalRead(pinOut) == HIGH ? LOW : HIGH;
+//   //Vermelho
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, LOW);
+//   TCS3200Red = pulseIn(pinOut, pulse);
+
+//   //Branco
+//   digitalWrite(S2, HIGH);
+//   digitalWrite(S3, LOW);
+//   TCS3200White = pulseIn(pinOut, pulse);
+
+//   // Azul
+//   digitalWrite(S2, LOW);
+//   digitalWrite(S3, HIGH);
+//   TCS3200Blue = pulseIn(pinOut, pulse);
+
+//   //Verde
+//   digitalWrite(S2, HIGH);
+//   digitalWrite(S3, HIGH);
+//   TCS3200Green = pulseIn(pinOut, pulse);
+
+// }
+
+// String getSensorColor() {
+
+//   if(TCS3200Red < TCS3200Green && TCS3200Red < TCS3200Blue && TCS3200White < 100 ) return "red";
+
+//   else if(TCS3200Green < TCS3200Red && TCS3200Green < TCS3200Blue && TCS3200White < 100 ) return "green";
+  
+//   else if(TCS3200Blue < TCS3200Red && TCS3200Blue < TCS3200Green && TCS3200White < 100 ) return "blue";
+
+//   return "white";
+  
+// }
   
 };
 
