@@ -46,8 +46,9 @@ String colorRight;
 String colorLeft;
 
   Leds() {
-      colorLeft = "WHITE";
-      colorRight = "WHITE";
+    colorLeft = "WHITE";
+    colorRight = "WHITE";
+
     pinMode(RIGHT_RED, OUTPUT); 
     pinMode(RIGHT_GREEN, OUTPUT); 
     pinMode(RIGHT_BLUE, OUTPUT);
@@ -163,7 +164,7 @@ void ReadLdrOnGreen() {
    int Subtraction_Subtraction2D = valueSubtractionLED1B - valueSubtractionLED1G;
    int average = (Subtraction_Subtraction1D + Subtraction_Subtraction2D) / 2;
 
-    average > 20 ? colorRight = "GREEN" : colorRight = "WHITE";
+   colorRight = average > 20 ? "GREEN" : "WHITE";
   }
 
   if (valueSubtractionLED2G < valueSubtractionLED2R && valueSubtractionLED2G < valueSubtractionLED2B) {
@@ -173,7 +174,7 @@ void ReadLdrOnGreen() {
    int Subtraction_Subtraction2E = valueSubtractionLED2B - valueSubtractionLED2G;
    int average = (Subtraction_Subtraction1E + Subtraction_Subtraction2E) / 2;
 
-    average > 20 ? colorLeft = "GREEN" : colorLeft = "WHITE";
+    colorLeft = average > 20 ? "GREEN" : "WHITE";
 }
         // ****************************** *************************** // 
   }
@@ -205,11 +206,11 @@ void ReadLdrOnGreen() {
 
 // String getSensorColor() {
 
-//   if(TCS3200Red < TCS3200Green && TCS3200Red < TCS3200Blue && TCS3200White < 100 ) return "red";
+//   if(TCS3200Red < TCS3200Green && TCS3200Red < TCS3200Blue && TCS3200White < 100 ) return "RED";
 
-//   else if(TCS3200Green < TCS3200Red && TCS3200Green < TCS3200Blue && TCS3200White < 100 ) return "green";
+//   else if(TCS3200Green < TCS3200Red && TCS3200Green < TCS3200Blue && TCS3200White < 100 ) return "GREEN";
   
-//   else if(TCS3200Blue < TCS3200Red && TCS3200Blue < TCS3200Green && TCS3200White < 100 ) return "blue";
+//   else if(TCS3200Blue < TCS3200Red && TCS3200Blue < TCS3200Green && TCS3200White < 100 ) return "BLUE";
 
 //   return "white";
   

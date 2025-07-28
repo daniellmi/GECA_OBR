@@ -109,7 +109,7 @@ void fullTurn() {
       delay(1000);
 
         while(true) {
-          right(180, 180);
+          right(140, 140);
           if(analogRead(IR3) > 500) break;
         }
 }
