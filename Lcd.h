@@ -2,9 +2,8 @@
 #define LCD_H
 
 #include <LiquidCrystal_I2C.h>
-#include "Leds.h"
 
-class Lcd : protected LiquidCrystal_I2C {
+class Lcd : protected LiquidCrystal_I2C { 
 
 public:
 

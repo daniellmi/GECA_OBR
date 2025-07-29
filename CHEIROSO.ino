@@ -3,6 +3,8 @@
 #include "Leds.h"
 #include "Path.h"
 #include "Lcd.h"
+#include <Wire.h>
+#include "Accelerometer.h"
 
 int IR1 = A0;
 int IR2 = A1;
@@ -12,24 +14,35 @@ int IR4 = A3;
 const int trigPin = 24;
 const int echoPin = 22;
 
+unsigned int speed = 70;
+unsigned int speed_2 = 100;
+unsigned int black_tape = 500;
+
 Motor motor;
 Leds leds;
 Path path;
 Sensor sensor(trigPin,echoPin);
 Lcd lcd(0x27, 16,2);
+Accelerometer acc;
 
 void setup() { 
   Serial.begin(9600);
+  Wire.begin();
 
+  acc.begin();
   lcd.begin();
+
   leds.calibratingLeds();
   delay(100);
   leds.calibratingLeds();
-}
+ }
 
 void loop() {
 
-     lcd.displayColor("WHITE", "WHITE");
+  speed = acc.getY() > 0.20 ? 180 : 70;
+  speed_2 = acc.getY() > 0.20 ? 150 : 100;
+
+  lcd.displayColor("WHITE", "WHITE");
   //  |---------- *** **** ******* *** ----------| //
 
 
@@ -40,7 +53,7 @@ void loop() {
 
 
   //  |---------- LÓGICA DO CRUZAMENTO ----------| //
-  if(analogRead(IR1) > 600 && analogRead(IR4) > 600) {
+  if(analogRead(IR1) > 600 && analogRead(IR4) > 600 && analogRead(IR1) < 800 && analogRead(IR4) < 800) {
 
       motor.stop();
       delay(200);
@@ -71,7 +84,21 @@ void loop() {
      else if (analogRead(IR1) > 600 && analogRead(IR2) > 600 && analogRead(IR4) < 450) {
 
 //      ***VERIFICA SE É INTERSEÇÂO***     //
-      path.intersection(350);
+      motor.stop();
+      delay(200);
+      motor.back(40, 40);
+
+      leds.ReadLdrOnGreen();
+      delay(200);
+      leds.ReadLdrOnGreen();  
+      lcd.displayColor(leds.colorRight, leds.colorLeft);     
+        
+      if(leds.colorLeft.equals("GREEN")) path.turnOnLeft90();
+
+      else if(leds.colorRight.equals("GREEN")) path.turnOnRight90();
+      
+      else {
+       path.intersection(350);
       
       if(max(path.max_IR2,path.max_IR3) > 500) {    
        motor.right(250,250);
@@ -83,12 +110,29 @@ void loop() {
 
       else 
       path.turnOnLeft90();
+
+      }
       
     }
 
      else if(analogRead(IR3) > 600 && analogRead(IR4) > 600 && analogRead(IR1) < 450) {
 
 //      ***VERIFICA SE É INTERSEÇÂO***     //
+
+      motor.stop();
+      delay(200);
+      motor.back(40, 40);
+
+      leds.ReadLdrOnGreen();
+      delay(200);
+      leds.ReadLdrOnGreen();  
+      lcd.displayColor(leds.colorRight, leds.colorLeft);     
+        
+      if(leds.colorRight.equals("GREEN")) path.turnOnRight90();
+      else if(leds.colorLeft.equals("GREEN")) path.turnOnLeft90();
+
+
+      else {
       path.intersection(350);
 
       if(max(path.max_IR2, path.max_IR3) > 500) {
@@ -102,22 +146,23 @@ void loop() {
      else 
      path.turnOnRight90();
   
+      }
      }
  //     |---------- ------ --- ----- -- -- ----- ----------| //
     
   // ****CURVA LEVE PARA  A ESQUERDA**** //
-   else if (analogRead(IR1) > 500 || analogRead(IR2) > 500) {
-    motor.left90(100);
+   else if (analogRead(IR1) > black_tape || analogRead(IR2) > black_tape) {
+    motor.left90(speed_2);
     delay(150);
   }
 
   // ****CURVA LEVE PARA  A DIREITA****  //
-  else if (analogRead(IR3) > 500 || analogRead(IR4) > 500) {
-    motor.right90(100);
+  else if (analogRead(IR3) > black_tape || analogRead(IR4) > black_tape) {
+    motor.right90(speed_2);
     delay(150);
   } 
 
-  else 
-  motor.go(70,70);
+  else  
+  motor.go(speed,speed);
 
  }

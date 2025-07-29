@@ -13,6 +13,7 @@ class Path : protected Motor {
 int IR2ValueForIntersection; // valor do IR2 na fita durante a interseção
 int IR3ValueForIntersection; // valor do IR3 na fita durante a interseção
 
+
 public: 
 // valores máximos encontrado pelos infravermelhos centrais 
 int max_IR2;
@@ -29,13 +30,14 @@ void intersection(int d) {
 
         int count = 1;
 
-        go(100,100);
+        go(80,80);
         delay(400);
 
         stop();
         delay(200);
 
     do{
+        
           left(100,100);
           delay(d); 
 
@@ -68,14 +70,17 @@ void redirectObstacle() {
   if(analogRead(IR2) > 500 || analogRead(IR3) > 500) {
     stop();
     delay(500);
-    go(100, 100);
+    go(100,100);
     delay(300);
 
     this->turnOnRight90();
+
+
     back(140,140);
-    delay(200);
+    delay(250);
+
     break;
-  } }
+  }}
 }
 
 void turnOnRight90() {
@@ -109,7 +114,7 @@ void fullTurn() {
       delay(1000);
 
         while(true) {
-          right(140, 140);
+          right(130, 130);
           if(analogRead(IR3) > 500) break;
         }
 }
