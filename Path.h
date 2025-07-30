@@ -30,11 +30,10 @@ void intersection(int d) {
 
         int count = 1;
 
-        go(80,80);
-        delay(400);
-
         stop();
         delay(200);
+        go(80,80);
+        delay(400);
 
     do{
         
@@ -55,14 +54,16 @@ void intersection(int d) {
 }
 
 void redirectObstacle() {
+  back(100,100);
+  delay(700);
   right(100,100);
-  delay(1600);
+  delay(1400);
 
   go(100,100);
-  delay(4000);
+  delay(5000);
   
   left(150,150);
-  delay(2900);
+  delay(2600);
 
   while(true) {
   go(120,120);
@@ -75,10 +76,8 @@ void redirectObstacle() {
 
     this->turnOnRight90();
 
-
     back(140,140);
     delay(250);
-
     break;
   }}
 }
@@ -114,7 +113,7 @@ void fullTurn() {
       delay(1000);
 
         while(true) {
-          right(130, 130);
+          right(110, 110);
           if(analogRead(IR3) > 500) break;
         }
 }

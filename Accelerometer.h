@@ -18,5 +18,6 @@ public:
 float getY() {
   return getAccelerationY() / g;
 }
+
 };
 #endif

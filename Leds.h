@@ -163,7 +163,7 @@ void ReadLdrOnGreen() {
    int Subtraction_Subtraction2D = valueSubtractionLED1B - valueSubtractionLED1G;
    int average = (Subtraction_Subtraction1D + Subtraction_Subtraction2D) / 2;
 
-   colorRight = average > 35 ? "GREEN" : "WHITE";
+   colorRight = average > 20 ? "GREEN" : "WHITE";
   }
 
   if (valueSubtractionLED2G < valueSubtractionLED2R && valueSubtractionLED2G < valueSubtractionLED2B) {
@@ -173,7 +173,7 @@ void ReadLdrOnGreen() {
    int Subtraction_Subtraction2E = valueSubtractionLED2B - valueSubtractionLED2G;
    int average = (Subtraction_Subtraction1E + Subtraction_Subtraction2E) / 2;
 
-    colorLeft = average > 35 ? "GREEN" : "WHITE";
+    colorLeft = average > 20? "GREEN" : "WHITE";
 }
         // ****************************** *************************** // 
   }

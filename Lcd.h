@@ -3,7 +3,7 @@
 
 #include <LiquidCrystal_I2C.h>
 
-class Lcd : protected LiquidCrystal_I2C { 
+class Lcd : public LiquidCrystal_I2C { 
 
 public:
 
@@ -15,6 +15,11 @@ void begin() {
   clear();
 }
 
+void display(String text) {
+   setCursor(0,0);
+    print(text);
+}
+
 void displayColor(String color_1, String color_2) {
       setCursor(0,0);
       print("RIGHT C:");
@@ -24,6 +29,8 @@ void displayColor(String color_1, String color_2) {
       print("LEFT C:");
       print(color_2);
 }
+
+
 
 };
 

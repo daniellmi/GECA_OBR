@@ -3,8 +3,8 @@
 #include "Leds.h"
 #include "Path.h"
 #include "Lcd.h"
-#include <Wire.h>
 #include "Accelerometer.h"
+#include <Wire.h>
 
 int IR1 = A0;
 int IR2 = A1;
@@ -14,7 +14,7 @@ int IR4 = A3;
 const int trigPin = 24;
 const int echoPin = 22;
 
-unsigned int speed = 70;
+unsigned int speed = 60;
 unsigned int speed_2 = 100;
 unsigned int black_tape = 500;
 
@@ -28,19 +28,26 @@ Accelerometer acc;
 void setup() { 
   Serial.begin(9600);
   Wire.begin();
-
-  acc.begin();
+  
   lcd.begin();
-
+  lcd.display("Calibrating acc");
+  acc.begin();
+  
   leds.calibratingLeds();
   delay(100);
   leds.calibratingLeds();
- }
+
+  lcd.clear();
+  }
 
 void loop() {
 
+
+  // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
   speed = acc.getY() > 0.20 ? 180 : 70;
-  speed_2 = acc.getY() > 0.20 ? 150 : 100;
+  speed_2 = acc.getY() > 0.20 ? 130 : 100;
+
+  // *** |-----------------------------------------------------------------------| *** //
 
   lcd.displayColor("WHITE", "WHITE");
   //  |---------- *** **** ******* *** ----------| //
@@ -53,15 +60,14 @@ void loop() {
 
 
   //  |---------- LÓGICA DO CRUZAMENTO ----------| //
-  if(analogRead(IR1) > 600 && analogRead(IR4) > 600 && analogRead(IR1) < 800 && analogRead(IR4) < 800) {
+    if(isCrossing()) {
 
       motor.stop();
       delay(200);
-      motor.back(40, 40);
+      motor.back(70, 70);
 
       leds.ReadLdrOnGreen();
-      delay(200);
-      leds.ReadLdrOnGreen();  
+ 
       lcd.displayColor(leds.colorRight, leds.colorLeft);
 
       if(leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
@@ -72,8 +78,8 @@ void loop() {
      
       // CASO NÃO HAJA FITA VERDE, O ROBÔ CONTINUA ANDANDO NUM DELAY ATÉ DEIXAR O CRUZAMENTO
      else {
-     motor.go(100,100);
-     delay(300);
+     motor.go(120,120);
+     delay(500);
      }
   } 
     //  |---------- ------ -- --------- ----------| //
@@ -81,26 +87,12 @@ void loop() {
 
   //     |---------- LÓGICA DAS CURVAS DE 90 GRAUS ----------| //
 
-     else if (analogRead(IR1) > 600 && analogRead(IR2) > 600 && analogRead(IR4) < 450) {
+     else if (analogRead(IR1) > 400 && analogRead(IR2) > 400) {
 
 //      ***VERIFICA SE É INTERSEÇÂO***     //
-      motor.stop();
-      delay(200);
-      motor.back(40, 40);
-
-      leds.ReadLdrOnGreen();
-      delay(200);
-      leds.ReadLdrOnGreen();  
-      lcd.displayColor(leds.colorRight, leds.colorLeft);     
-        
-      if(leds.colorLeft.equals("GREEN")) path.turnOnLeft90();
-
-      else if(leds.colorRight.equals("GREEN")) path.turnOnRight90();
-      
-      else {
        path.intersection(350);
       
-      if(max(path.max_IR2,path.max_IR3) > 500) {    
+      if(max(path.max_IR2,path.max_IR3) > black_tape) {    
        motor.right(250,250);
        motor.go(65,65);
 
@@ -111,31 +103,14 @@ void loop() {
       else 
       path.turnOnLeft90();
 
-      }
-      
     }
 
-     else if(analogRead(IR3) > 600 && analogRead(IR4) > 600 && analogRead(IR1) < 450) {
+     else if(analogRead(IR3) > 500 && analogRead(IR4) > 500) {
 
 //      ***VERIFICA SE É INTERSEÇÂO***     //
-
-      motor.stop();
-      delay(200);
-      motor.back(40, 40);
-
-      leds.ReadLdrOnGreen();
-      delay(200);
-      leds.ReadLdrOnGreen();  
-      lcd.displayColor(leds.colorRight, leds.colorLeft);     
-        
-      if(leds.colorRight.equals("GREEN")) path.turnOnRight90();
-      else if(leds.colorLeft.equals("GREEN")) path.turnOnLeft90();
-
-
-      else {
       path.intersection(350);
 
-      if(max(path.max_IR2, path.max_IR3) > 500) {
+      if(max(path.max_IR2, path.max_IR3) > black_tape) {
        motor.left(250,250);
        motor.go(65,65);
 
@@ -146,7 +121,7 @@ void loop() {
      else 
      path.turnOnRight90();
   
-      }
+      
      }
  //     |---------- ------ --- ----- -- -- ----- ----------| //
     
@@ -166,3 +141,22 @@ void loop() {
   motor.go(speed,speed);
 
  }
+
+ bool isCrossing() {
+  return analogRead(IR1) > black_tape - 100 && analogRead(IR4) > black_tape; 
+ }
+
+ void readIRS() {
+  Serial.print("IR1: ");
+  Serial.println(analogRead(IR1));
+
+  Serial.print("IR2: ");
+  Serial.println(analogRead(IR2));
+
+  Serial.print("IR3: ");
+  Serial.println(analogRead(IR3));
+
+  Serial.print("IR4: ");
+  Serial.println(analogRead(IR4));
+  delay(500);
+  }
