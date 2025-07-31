@@ -6,6 +6,8 @@
 #include "Accelerometer.h"
 #include <Wire.h>
 
+#define pinLed 45
+
 int IR1 = A0;
 int IR2 = A1;
 int IR3 = A2;
@@ -22,26 +24,26 @@ Motor motor;
 Leds leds;
 Path path;
 Sensor sensor(trigPin,echoPin);
-Lcd lcd(0x27, 16,2);
+// Lcd lcd(0x27, 16,2);
 Accelerometer acc;
 
 void setup() { 
   Serial.begin(9600);
   Wire.begin();
-  
-  lcd.begin();
-  lcd.display("Calibrating acc");
-  acc.begin();
+  acc.begin(); // calibra acelerometro
   
   leds.calibratingLeds();
   delay(100);
   leds.calibratingLeds();
 
-  lcd.clear();
   }
 
 void loop() {
+// Serial.println(leds.getSensorColor());
+//  delay(600);
+//   lcd.displayColor("WHITE", "WHITE");
 
+  leds.TCS3200();
 
   // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
   speed = acc.getY() > 0.20 ? 180 : 70;
@@ -49,13 +51,13 @@ void loop() {
 
   // *** |-----------------------------------------------------------------------| *** //
 
-  lcd.displayColor("WHITE", "WHITE");
-  //  |---------- *** **** ******* *** ----------| //
-
-
  //  |---------- LÓGICA DO SENSOR ULTRASÔNICO ----------| //
-      if(sensor.getDistance() < 12) 
-        path.redirectObstacle();
+      if(sensor.available()) { 
+        
+      if(sensor.getDistance() < 12)
+      path.redirectObstacle();
+      }
+      
 //  |---------- ------ -- ----- ----------- ----------| //
 
 
@@ -68,7 +70,7 @@ void loop() {
 
       leds.ReadLdrOnGreen();
  
-      lcd.displayColor(leds.colorRight, leds.colorLeft);
+      // lcd.displayColor(leds.colorRight, leds.colorLeft);
 
       if(leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
     
