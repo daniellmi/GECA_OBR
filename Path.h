@@ -14,7 +14,6 @@ private:
   int IR2ValueForIntersection;  // valor do IR2 na fita durante a interseção
   int IR3ValueForIntersection;  // valor do IR3 na fita durante a interseção
 
-
 public:
   // valores máximos encontrado pelos infravermelhos centrais
   int max_IR2;
@@ -55,18 +54,18 @@ public:
 
   void redirectObstacle() {
     back(100, 100);
-    delay(700);
+    delay(650);
     right(100, 100);
-    delay(1000);
+    delay(850);
 
     go(100, 100);
-    delay(4000);
+    delay(3580);
 
-    left(150, 150);
-    delay(2500);
+    left(160, 130);
+    delay(1850);
 
     while (true) {
-      go(120, 120);
+      go(140, 120);
 
       if (analogRead(IR2) > 500 || analogRead(IR3) > 500) {
         stop();
@@ -76,7 +75,7 @@ public:
 
         this->turnOnRight90(900);
 
-        back(140, 140);
+        back(140, 120);
         delay(250);
         break;
       }

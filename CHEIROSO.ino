@@ -17,7 +17,9 @@ const int echoPin = 22;
 
 unsigned int speed = 50;
 unsigned int speed_2 = 100;
-unsigned int black_tape = 500;
+
+unsigned int black_tape = 20;
+unsigned int black_tape_2 = 40;
 unsigned int color_error = 30;
 
 Motor motor;
@@ -28,16 +30,21 @@ TCS3200 rgb;
 Sensor sensor(trigPin, echoPin);
 // Lcd lcd(0x27, 16,2);
 
+const int button = 26;
+bool pressed = false;
+bool lastState = HIGH;
+
+int IR1_value = 0;
+int IR2_value = 0;
+int IR3_value = 0;
+int IR4_value = 0;
+
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  acc.begin(); // calibragem do acelerômetro
+  acc.begin();  // calibragem do acelerômetro
 
- // ** CALIBRAGEM DOS LDR's ** //
-  leds.calibratingLeds();
-  delay(100);
-  leds.calibratingLeds();
-  delay(200);
+  pinMode(button, INPUT_PULLUP);
 
   pinMode(rgb.pinS0, OUTPUT);
   pinMode(rgb.pinS1, OUTPUT);
@@ -50,21 +57,44 @@ void setup() {
   digitalWrite(rgb.pinS1, LOW);
 
   delay(1000);
-  digitalWrite(rgb.pinLED, HIGH);
+  digitalWrite(rgb.pinLED, LOW);
+  delay(200);
+
+  // ** CALIBRAGEM DOS LDR's ** //
+  leds.calibratingLeds();
+  delay(100);
+  leds.calibratingLeds();
+  delay(200);
 }
 
 void loop() {
-  digitalWrite(rgb.pinLED, LOW);
-  // rgb.detectColor();
-  // if ((rgb.red + color_error < rgb.green) && (rgb.red < rgb.green) && (rgb.white < 100)) {
 
-  //   Serial.println("Vermelho");
-  //   motor.stop();
-  //   delay(6000);
-  // }
+  IR1_value = map(analogRead(IR1), 0, 1023, 0, 100);
+  IR2_value = map(analogRead(IR2), 0, 1023, 0, 100);
+  IR3_value = map(analogRead(IR3), 0, 1023, 0, 100);
+  IR4_value = map(analogRead(IR4), 0, 1023, 0, 100);
+
+  int state = digitalRead(button);
+
+  if (state == LOW) pressed = !pressed;
+
+  lastState = state;
+
+  if (pressed) {
+    digitalWrite(rgb.pinLED, HIGH);
+
+    rgb.detectColor();
+    if ((rgb.red + color_error < rgb.green) && (rgb.red < rgb.green) && (rgb.white < 100)) {
+
+      Serial.println("Vermelho"); 
+      motor.stop();
+      delay(6000);
+    }
+  } else
+    digitalWrite(rgb.pinLED, LOW);
 
   // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
-  speed = acc.getY() > 0.20 ? 230 : 60;
+  speed = acc.getY() > 0.20 ? 180 : 60;
   speed_2 = acc.getY() > 0.20 ? 200 : 100;
 
   // *** |-----------------------------------------------------------------------| *** //
@@ -72,7 +102,7 @@ void loop() {
   // |---------- LÓGICA DO SENSOR ULTRASÔNICO ----------| //
   if (sensor.available()) {
 
- if (sensor.getDistance() <= 5) path.redirectObstacle();
+    if (sensor.getDistance() <= 5) path.redirectObstacle();
   }
 
   //  |---------- ------ -- ----- ----------- ----------| //
@@ -104,12 +134,12 @@ void loop() {
 
   //     |---------- LÓGICA DAS CURVAS DE 90 GRAUS ----------| //
 
-  else if (analogRead(IR1) > black_tape && analogRead(IR2) > black_tape) {
+  else if (IR1_value > black_tape && IR2_value > black_tape) {
 
     //      ***VERIFICA SE É INTERSEÇÂO***     //
     path.intersection(350);
 
-    if (max(path.max_IR2, path.max_IR3) > black_tape) {
+    if (max(path.max_IR2, path.max_IR3) > 500) {
       motor.right(250, 250);
       motor.go(65, 65);
 
@@ -121,12 +151,12 @@ void loop() {
       path.turnOnLeft90(500);
   }
 
-  else if (analogRead(IR3) > black_tape + 100 && analogRead(IR4) > black_tape + 100) {
+  else if (IR3_value > black_tape_2 && IR4_value > black_tape_2) {
     //
     //      ***VERIFICA SE É INTERSEÇÂO***     //
     path.intersection(350);
 
-    if (max(path.max_IR2, path.max_IR3) > black_tape) {
+    if (max(path.max_IR2, path.max_IR3) > 500) {
       motor.left(250, 250);
       motor.go(65, 65);
 
@@ -140,23 +170,23 @@ void loop() {
   //     |---------- ------ --- ----- -- -- ----- ----------| //
 
   // ****CURVA LEVE PARA  A ESQUERDA**** //
-  else if (analogRead(IR1) > black_tape) {
+  else if (IR1_value > black_tape) {
     motor.left90(speed_2);
     delay(250);
   }
 
-  else if (analogRead(IR2) > black_tape) {
+  else if (IR2_value > black_tape) {
     motor.left90(speed_2);
     delay(120);
   }
 
   // ****CURVA LEVE PARA  A DIREITA****  //
-  else if (analogRead(IR3) > black_tape + 100) {
+  else if (IR3_value > black_tape_2) {
     motor.right90(speed_2);
     delay(120);
   }
 
-  else if (analogRead(IR4) > black_tape + 100) {
+  else if (IR4_value > black_tape_2) {
     motor.right90(speed_2);
     delay(250);
   }
@@ -166,7 +196,7 @@ void loop() {
 }
 
 bool isCrossing() {
-  return analogRead(IR1) > black_tape - 120 && analogRead(IR4) > black_tape;
+  return IR1_value > 20 && IR4_value > 40;
 }
 
 void readIRS() {
