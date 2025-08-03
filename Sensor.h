@@ -5,15 +5,18 @@
 
 class Sensor : public Ultrasonic {
 
-int distance;
-bool isAvailable;
+private:
+
+  int distance;
+  bool isAvailable;
 
 public:
 
-  Sensor(const int trigger, const int echo): Ultrasonic(trigger,echo) {
+  Sensor(const int trigger, const int echo)
+    : Ultrasonic(trigger, echo) {
     pinMode(trigger, OUTPUT);
     pinMode(echo, INPUT);
-    isAvailable = true; // usando essa condicao para depois desativar o ultrassonico na hora do resgate
+    isAvailable = true;  // usando essa condicao para depois desativar o ultrassonico na hora do resgate
   }
 
   int getDistance() {
@@ -21,15 +24,14 @@ public:
     return distance;
   }
 
-   void setIsAvailable(bool av) {
+  void setIsAvailable(bool av) {
     isAvailable = av;
   }
-  
+
   bool available() {
-    if(isAvailable) return true;
+    if (isAvailable) return true;
 
     return false;
   }
-
 };
 #endif

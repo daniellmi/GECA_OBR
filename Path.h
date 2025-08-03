@@ -10,14 +10,15 @@ extern int IR4;
 
 class Path : protected Motor {
 
-int IR2ValueForIntersection; // valor do IR2 na fita durante a interseção
-int IR3ValueForIntersection; // valor do IR3 na fita durante a interseção
+private:
+  int IR2ValueForIntersection;  // valor do IR2 na fita durante a interseção
+  int IR3ValueForIntersection;  // valor do IR3 na fita durante a interseção
 
 
-public: 
-// valores máximos encontrado pelos infravermelhos centrais 
-int max_IR2;
-int max_IR3; 
+public:
+  // valores máximos encontrado pelos infravermelhos centrais
+  int max_IR2;
+  int max_IR3;
 
   Path() {
     IR2ValueForIntersection = 0;
@@ -26,97 +27,96 @@ int max_IR3;
     max_IR3 = 0;
   }
 
-void intersection(int d) {
+  void intersection(int d) {
 
-        int count = 1;
+    int count = 1;
 
-        stop();
-        delay(200);
-        go(80,80);
-        delay(400);
-
-    do{
-        
-          left(100,100);
-          delay(d); 
-
-          right(100,100);
-          delay(d); 
-
-          IR3ValueForIntersection = analogRead(IR3);
-          IR2ValueForIntersection = analogRead(IR2);
-
-          if(max_IR3 < IR3ValueForIntersection ) max_IR3 = IR3ValueForIntersection;
-          if(max_IR2 < IR2ValueForIntersection) max_IR2 = IR2ValueForIntersection;
-          ++count;
-        }
-        while(count <= 4);
-}
-
-void redirectObstacle() {
-  back(100,100);
-  delay(700);
-  right(100,100);
-  delay(1400);
-
-  go(100,100);
-  delay(5000);
-  
-  left(150,150);
-  delay(2600);
-
-  while(true) {
-  go(120,120);
-
-  if(analogRead(IR2) > 500 || analogRead(IR3) > 500) {
     stop();
-    delay(500);
-    go(100,100);
-    delay(300);
+    delay(200);
+    go(80, 80);
+    delay(400);
 
-    this->turnOnRight90();
+    do {
 
-    back(140,140);
+      left(100, 100);
+      delay(d);
+
+      right(100, 100);
+      delay(d);
+
+      IR3ValueForIntersection = analogRead(IR3);
+      IR2ValueForIntersection = analogRead(IR2);
+
+      if (max_IR3 < IR3ValueForIntersection) max_IR3 = IR3ValueForIntersection;
+      if (max_IR2 < IR2ValueForIntersection) max_IR2 = IR2ValueForIntersection;
+      ++count;
+    } while (count <= 4);
+  }
+
+  void redirectObstacle() {
+    back(100, 100);
+    delay(700);
+    right(100, 100);
+    delay(1000);
+
+    go(100, 100);
+    delay(4000);
+
+    left(150, 150);
+    delay(2500);
+
+    while (true) {
+      go(120, 120);
+
+      if (analogRead(IR2) > 500 || analogRead(IR3) > 500) {
+        stop();
+        delay(500);
+        go(100, 100);
+        delay(300);
+
+        this->turnOnRight90(900);
+
+        back(140, 140);
+        delay(250);
+        break;
+      }
+    }
+  }
+
+  void turnOnRight90(int d) {
+    go(120, 120);
+    delay(d);
+
+    while (true) {
+      right(100, 100);
+      if (analogRead(IR3) > 500) break;
+    }
+
+    back(100, 100);
     delay(250);
-    break;
-  }}
-}
+  }
 
-void turnOnRight90() {
-        go(100,100);
-        delay(900);
+  void turnOnLeft90(int d) {
+    go(120, 120);
+    delay(d);
 
-        while(true) {
-          right(100, 100);
-          if(analogRead(IR3) > 500) break;
-        }
+    while (true) {
+      left(100, 100);
+      if (analogRead(IR2) > 500) break;
+    }
 
-        back(100,100);
-        delay(250);
-}
+    back(100, 100);
+    delay(250);
+  }
 
-  void turnOnLeft90() {
-        go(100,100);
-        delay(900);
+  void fullTurn() {
+    right(120, 120);
+    delay(1000);
 
-        while(true) {
-          left(100, 100);
-          if(analogRead(IR2) > 500) break;
-        }
-
-        back(100,100);
-        delay(250);
-}
-
-void fullTurn() {
-      right(120, 120);
-      delay(1000);
-
-        while(true) {
-          right(110, 110);
-          if(analogRead(IR3) > 500) break;
-        }
-}
-
+    while (true) {
+      right(110, 110);
+      if (analogRead(IR3) > 500) break;
+    }
+  }
 };
 #endif

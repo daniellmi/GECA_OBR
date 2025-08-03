@@ -5,19 +5,19 @@
 
 class Accelerometer : private MPU6050 {
 
-float g;
+private:
+  float g;
 
-public: 
-   void begin() {
+public:
+  void begin() {
     g = 16834.0;
     initialize();
     CalibrateAccel();
     CalibrateGyro();
   }
 
-float getY() {
-  return getAccelerationY() / g;
-}
-
+  float getY() {
+    return getAccelerationY() / g;
+  }
 };
 #endif

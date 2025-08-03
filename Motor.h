@@ -3,19 +3,21 @@
 
 class Motor {
 
- int ENA = 2; // LOW HIGH
- int IN1 = 3; 
- int IN2 = 4;
- int IN3 = 5;
- int IN4 = 6;
- int ENB = 7;
+private:
 
- int ENAL= 13;
- int IN1L = 11;
- int IN2L = 12;
- int ENBL = 8; //LOW HIGH
- int IN3L = 9;
- int IN4L = 10;
+  int ENA = 2;  // LOW HIGH
+  int IN1 = 3;
+  int IN2 = 4;
+  int IN3 = 5;
+  int IN4 = 6;
+  int ENB = 7;
+
+  int ENAL = 13;
+  int IN1L = 11;
+  int IN2L = 12;
+  int ENBL = 8;  //LOW HIGH
+  int IN3L = 9;
+  int IN4L = 10;
 
 public:
 
@@ -35,20 +37,20 @@ public:
     pinMode(ENAL, OUTPUT);
     pinMode(ENBL, OUTPUT);
   }
-  
+
   void go(int right_speed, int left_speed) {
 
-    //primeiro da direita 
+    //primeiro da direita
     analogWrite(ENA, right_speed);
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
 
-    //segundo da direita 
+    //segundo da direita
     analogWrite(ENB, right_speed);
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
 
-   // primeiro da esquerda
+    // primeiro da esquerda
     analogWrite(ENAL, left_speed);
     digitalWrite(IN1L, HIGH);
     digitalWrite(IN2L, LOW);
@@ -84,11 +86,11 @@ public:
     digitalWrite(IN3L, LOW);
     digitalWrite(IN4L, HIGH);
 
-     // motores da direita giram pra tras
+    // motores da direita giram pra tras
     analogWrite(ENA, right_speed);
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
-    
+
     analogWrite(ENB, right_speed);
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
@@ -112,9 +114,8 @@ public:
     analogWrite(ENBL, left_speed);
     digitalWrite(IN3L, HIGH);
     digitalWrite(IN4L, LOW);
-
   }
-   void right90(int left_speed) {
+  void right90(int left_speed) {
 
     analogWrite(ENAL, left_speed);
     digitalWrite(IN1L, HIGH);
@@ -124,11 +125,11 @@ public:
     digitalWrite(IN3L, LOW);
     digitalWrite(IN4L, HIGH);
 
-     // motores da direita param
+    // motores da direita param
     analogWrite(ENA, 0);
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, HIGH);
-    
+
     analogWrite(ENB, 0);
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, HIGH);
@@ -152,7 +153,6 @@ public:
     analogWrite(ENBL, 0);
     digitalWrite(IN3L, HIGH);
     digitalWrite(IN4L, HIGH);
-
   }
   void back(int right_speed, int left_speed) {
 
