@@ -32,7 +32,6 @@ Sensor sensor(trigPin, echoPin);
 
 const int button = 26;
 bool pressed = false;
-bool lastState = HIGH;
 
 int IR1_value = 0;
 int IR2_value = 0;
@@ -76,9 +75,7 @@ void loop() {
 
   int state = digitalRead(button);
 
-  if (state == LOW) pressed = !pressed;
-
-  lastState = state;
+  if (!state) pressed = !pressed;
 
   if (pressed) {
     digitalWrite(rgb.pinLED, HIGH);
@@ -86,7 +83,7 @@ void loop() {
     rgb.detectColor();
     if ((rgb.red + color_error < rgb.green) && (rgb.red < rgb.green) && (rgb.white < 100)) {
 
-      Serial.println("Vermelho"); 
+      Serial.println("Vermelho");
       motor.stop();
       delay(6000);
     }
@@ -201,16 +198,16 @@ bool isCrossing() {
 
 void readIRS() {
   Serial.print("IR1: ");
-  Serial.println(analogRead(IR1));
+  Serial.println(IR1_value);
 
   Serial.print("IR2: ");
-  Serial.println(analogRead(IR2));
+  Serial.println(IR2_value);
 
   Serial.print("IR3: ");
-  Serial.println(analogRead(IR3));
+  Serial.println(IR3_value);
 
   Serial.print("IR4: ");
-  Serial.println(analogRead(IR4));
+  Serial.println(IR4_value);
   delay(500);
 }
 
