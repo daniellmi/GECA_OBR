@@ -15,12 +15,28 @@ int IR4 = A3;
 const int trigPin = 24;
 const int echoPin = 22;
 
-unsigned int speed = 50;
-unsigned int speed_2 = 100;
+unsigned int speed = 0;
+unsigned int speed_2 = 0;
 
-unsigned int black_tape = 20;
-unsigned int black_tape_2 = 40;
+unsigned int black_tape = 45;    // valor mapeado dos infravermelhos esquerdos na linha preta
+unsigned int black_tape_2 = 45;  /// valor mapeado dos infravermelhos direitos na linha preta
 unsigned int color_error = 30;
+
+// -- CALCULA O TEMPO PARA CURVAS LEVES NA LINHA -- //
+unsigned long lastTime_right = 0;
+unsigned long lastTime_right_300 = 0;
+
+unsigned long lastTime_left = 0;
+unsigned long lastTime_left_300 = 0;
+
+const int button = 26;
+bool pressed = false;
+
+// ** VALORES DOS IR'S A SEREM MAPEADOS ** //
+int IR1_value = 0;
+int IR2_value = 0;
+int IR3_value = 0;
+int IR4_value = 0;
 
 Motor motor;
 Leds leds;
@@ -30,21 +46,12 @@ TCS3200 rgb;
 Sensor sensor(trigPin, echoPin);
 // Lcd lcd(0x27, 16,2);
 
-const int button = 26;
-bool pressed = false;
-
-int IR1_value = 0;
-int IR2_value = 0;
-int IR3_value = 0;
-int IR4_value = 0;
-
 void setup() {
   Serial.begin(9600);
   Wire.begin();
   acc.begin();  // calibragem do acelerômetro
 
   pinMode(button, INPUT_PULLUP);
-
   pinMode(rgb.pinS0, OUTPUT);
   pinMode(rgb.pinS1, OUTPUT);
   pinMode(rgb.pinS2, OUTPUT);
@@ -67,14 +74,14 @@ void setup() {
 }
 
 void loop() {
-
+ 
   IR1_value = map(analogRead(IR1), 0, 1023, 0, 100);
   IR2_value = map(analogRead(IR2), 0, 1023, 0, 100);
   IR3_value = map(analogRead(IR3), 0, 1023, 0, 100);
   IR4_value = map(analogRead(IR4), 0, 1023, 0, 100);
 
+  // *** -- LÓGICA DO BOTÃO -- *** //
   int state = digitalRead(button);
-
   if (!state) pressed = !pressed;
 
   if (pressed) {
@@ -83,34 +90,33 @@ void loop() {
     rgb.detectColor();
     if ((rgb.red + color_error < rgb.green) && (rgb.red < rgb.green) && (rgb.white < 100)) {
 
-      Serial.println("Vermelho");
+      Serial.println("Red");
       motor.stop();
       delay(6000);
     }
   } else
     digitalWrite(rgb.pinLED, LOW);
+  // *** -- ****** ** ***** -- *** //
 
   // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
-  speed = acc.getY() > 0.20 ? 180 : 60;
-  speed_2 = acc.getY() > 0.20 ? 200 : 100;
+  speed = acc.getY() > 0.22 ? 190 : 60;
+  speed_2 = acc.getY() > 0.22 ? 130 : 100;
 
   // *** |-----------------------------------------------------------------------| *** //
 
   // |---------- LÓGICA DO SENSOR ULTRASÔNICO ----------| //
-  if (sensor.available()) {
-
+  if (sensor.available())
     if (sensor.getDistance() <= 5) path.redirectObstacle();
-  }
+
 
   //  |---------- ------ -- ----- ----------- ----------| //
 
-
   //  |---------- LÓGICA DO CRUZAMENTO ----------| //
-  if (isCrossing()) {
+  if (analogRead(IR1) > 450 && analogRead(IR4) > 600) {
     motor.stop();
     delay(200);
     motor.back(80, 80);
-    delay(250);
+    delay(200);
 
     leds.ReadLdrOnGreen();
 
@@ -120,80 +126,136 @@ void loop() {
 
     else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
 
-    // CASO NÃO HAJA FITA VERDE, O ROBÔ CONTINUA ANDANDO NUM DELAY ATÉ DEIXAR O CRUZAMENTO
+    // CASO NÃO HAJA FITA VERDE, O ROBÔ CONTINUA ANDANDO ATÉ DEIXAR O CRUZAMENTO
     else {
       motor.go(100, 100);
       delay(500);
     }
+    leds.colorLeft = "WHITE";
+    leds.colorRight = "WHITE";
   }
   //  |---------- ------ -- --------- ----------| //
 
 
   //     |---------- LÓGICA DAS CURVAS DE 90 GRAUS ----------| //
 
-  else if (IR1_value > black_tape && IR2_value > black_tape) {
+  else if (analogRead(IR1) > 600 && analogRead(IR2) > 600 && analogRead(IR4) < 450) {
 
-    //      ***VERIFICA SE É INTERSEÇÂO***     //
-    path.intersection(350);
+    motor.stop();
+    delay(200);
+    motor.back(80, 80);
+    delay(200);
 
-    if (max(path.max_IR2, path.max_IR3) > 500) {
-      motor.right(250, 250);
-      motor.go(65, 65);
+    leds.ReadLdrOnGreen();
 
-      path.max_IR2 = 0;
-      path.max_IR3 = 0;
+    if (leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
+
+    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(900);
+
+    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
+
+    else {
+      motor.go(80, 80);
+      delay(250);
+      //      ***VERIFICA SE É INTERSEÇÂO***     //
+      path.intersection(350);
+
+      if (max(path.max_IR2, path.max_IR3) > 500) {
+        motor.right(250, 250);
+        motor.go(65, 65);
+
+        path.max_IR2 = 0;
+        path.max_IR3 = 0;
+      }
+
+      else
+        path.turnOnLeft90(900);
     }
-
-    else
-      path.turnOnLeft90(500);
+    leds.colorLeft = "WHITE";
+    leds.colorRight = "WHITE";
   }
 
-  else if (IR3_value > black_tape_2 && IR4_value > black_tape_2) {
-    //
-    //      ***VERIFICA SE É INTERSEÇÂO***     //
-    path.intersection(350);
+  else if (analogRead(IR3) > 600 && analogRead(IR4) > 600) {
+    motor.stop();
+    delay(200);
+    motor.back(80, 80);
+    delay(200);
 
-    if (max(path.max_IR2, path.max_IR3) > 500) {
-      motor.left(250, 250);
-      motor.go(65, 65);
+    leds.ReadLdrOnGreen();
 
-      path.max_IR2 = 0;
-      path.max_IR3 = 0;
+    if (leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
+
+    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(900);
+
+    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
+
+    else {
+      motor.go(80, 80);
+      delay(250);
+      //      ***VERIFICA SE É INTERSEÇÂO***     //
+      path.intersection(350);
+
+      if (max(path.max_IR2, path.max_IR3) > 500) {
+        motor.left(250, 250);
+        motor.go(65, 65);
+
+        path.max_IR2 = 0;
+        path.max_IR3 = 0;
+      }
+
+      else
+        path.turnOnRight90(900);
     }
-
-    else
-      path.turnOnRight90(500);
+    leds.colorLeft = "WHITE";
+    leds.colorRight = "WHITE";
   }
   //     |---------- ------ --- ----- -- -- ----- ----------| //
 
   // ****CURVA LEVE PARA  A ESQUERDA**** //
   else if (IR1_value > black_tape) {
-    motor.left90(speed_2);
-    delay(250);
+
+    unsigned long m = millis();
+
+    if (m - lastTime_left_300 >= 500) {
+      motor.left90(speed_2);
+      lastTime_left_300 = m;
+    }
   }
 
   else if (IR2_value > black_tape) {
-    motor.left90(speed_2);
-    delay(120);
+
+    unsigned long m = millis();
+
+    if (m - lastTime_left >= 150) {
+      motor.left90(speed_2);
+      lastTime_left = m;
+    }
   }
 
   // ****CURVA LEVE PARA  A DIREITA****  //
   else if (IR3_value > black_tape_2) {
-    motor.right90(speed_2);
-    delay(120);
+
+    unsigned long m = millis();
+
+    if (m - lastTime_right >= 150) {
+      motor.right90(speed_2);
+      lastTime_right = m;
+    }
+
   }
 
   else if (IR4_value > black_tape_2) {
-    motor.right90(speed_2);
-    delay(250);
+
+    unsigned long m = millis();
+
+    if (m - lastTime_right_300 >= 500) {
+      motor.right90(speed_2);
+      lastTime_right_300 = m;
+    }
   }
 
   else
     motor.go(speed, speed);
-}
-
-bool isCrossing() {
-  return IR1_value > 20 && IR4_value > 40;
 }
 
 void readIRS() {

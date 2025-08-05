@@ -92,7 +92,7 @@ public:
     }
 
     back(100, 100);
-    delay(250);
+    delay(350);
   }
 
   void turnOnLeft90(int d) {
@@ -105,7 +105,7 @@ public:
     }
 
     back(100, 100);
-    delay(250);
+    delay(350);
   }
 
   void fullTurn() {

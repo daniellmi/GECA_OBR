@@ -13,11 +13,12 @@ public:
     g = 16834.0;
     initialize();
     CalibrateAccel();
-    CalibrateGyro();
+    CalibrateGyro(); 
   }
 
   float getY() {
     return getAccelerationY() / g;
   }
+
 };
 #endif
