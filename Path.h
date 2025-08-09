@@ -117,5 +117,12 @@ public:
       if (analogRead(IR3) > 500) break;
     }
   }
+
+  void moveBackToReadColor() {
+    stop();
+    delay(200);
+    back(80,80);
+    delay(200);
+  }
 };
 #endif

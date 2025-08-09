@@ -13,12 +13,18 @@ public:
     g = 16834.0;
     initialize();
     CalibrateAccel();
-    CalibrateGyro(); 
+    // CalibrateGyro(); 
   }
 
   float getY() {
     return getAccelerationY() / g;
   }
+
+  bool isInclined() {
+    if(this->getY() >= 0.22) return true;
+    return false;
+  }
+
 
 };
 #endif

@@ -3,7 +3,7 @@
 
 #include <Ultrasonic.h>
 
-class Sensor : public Ultrasonic {
+class Sensor : protected Ultrasonic {
 
 private:
 
@@ -12,8 +12,7 @@ private:
 
 public:
 
-  Sensor(const int trigger, const int echo)
-    : Ultrasonic(trigger, echo) {
+  Sensor(const int trigger, const int echo) : Ultrasonic(trigger, echo) {
     pinMode(trigger, OUTPUT);
     pinMode(echo, INPUT);
     isAvailable = true;  // usando essa condicao para depois desativar o ultrassonico na hora do resgate
@@ -24,7 +23,7 @@ public:
     return distance;
   }
 
-  void setIsAvailable(bool av) {
+  void availability(bool av) {
     isAvailable = av;
   }
 
