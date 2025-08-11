@@ -25,7 +25,7 @@ private:
   int RIGHT_RED_WHITE_VALUE;
   int RIGHT_GREEN_WHITE_VALUE;
   int RIGHT_BLUE_WHITE_VALUE;
-  
+
 public:
 
   String colorRight;

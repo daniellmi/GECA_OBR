@@ -21,10 +21,8 @@ public:
   }
 
   bool isInclined() {
-    if(this->getY() >= 0.22) return true;
+    if(this->getY() >= 0.12) return true;
     return false;
   }
-
-
 };
 #endif

@@ -6,7 +6,6 @@
 #include "Accelerometer.h"
 #include "TCS3200.h"
 #include "Button.h"
-
 #include <Servo.h>
 #include <Wire.h>
 
@@ -22,8 +21,7 @@ unsigned int speed = 0;
 unsigned int speed_2 = 0;
 
 unsigned int black_tape = 45;    // valor mapeado dos infravermelhos esquerdos na linha preta
-unsigned int black_tape_2 = 45;  /// valor mapeado dos infravermelhos direitos na linha preta
-unsigned int color_error = 30;
+unsigned int black_tape_2 = 55;  /// valor mapeado dos infravermelhos direitos na linha preta
 
 // -- CALCULA O TEMPO PARA CURVAS LEVES NA LINHA -- //
 unsigned long lastTime_right = 0;
@@ -39,6 +37,8 @@ int IR3_value = 0;
 int IR4_value = 0;
 
 bool rescue = false;
+
+int delayCurva = 150;
 
 Motor motor;
 Leds leds;
@@ -79,16 +79,30 @@ void setup() {
 }
 
 void loop() {
-
   IR1_value = map(analogRead(IR1), 0, 1023, 0, 100);
   IR2_value = map(analogRead(IR2), 0, 1023, 0, 100);
   IR3_value = map(analogRead(IR3), 0, 1023, 0, 100);
   IR4_value = map(analogRead(IR4), 0, 1023, 0, 100);
 
+  // readIRS();
   if (!rescue) servo.write(100);
 
-  sensor.availability(false);
-  if (millis() > 15000) sensor.availability(true);
+  // *** -- LÓGICA DO BOTÃO -- *** //
+
+  if (button_1.isPressed()) {
+    digitalWrite(rgb.pinLED, HIGH);
+    rgb.detectColor();
+
+    if (rgb.getColor().equals("RED")) {
+      Serial.println("Red");
+      motor.stop();
+      delay(6000);
+    }
+
+  } else
+    digitalWrite(rgb.pinLED, LOW);
+
+  // *** -- ****** ** ***** -- *** //
 
   // COLOCAR AQUI A LÓGICA DO RESGATE (ACHAR PARÂMETRO PARA DETECTAR ARENA)
   if (button_2.isPressed() && rescue) {
@@ -98,41 +112,30 @@ void loop() {
     motor.left(100, 100);
     delay(3000);
 
-    button_2.pressed = false;
+    // button_2.pressed = false;
 
-  } else if (!button_2.isPressed() && rescue)
-    servo.write(0);
-
-  // *** -- LÓGICA DO BOTÃO -- *** //
-
-  if (button_1.isPressed()) {
-    digitalWrite(rgb.pinLED, HIGH);
-
-    rgb.detectColor();
-    if ((rgb.red + color_error < rgb.green) && (rgb.red < rgb.green) && (rgb.white < 100)) {
-
-      Serial.println("Red");
-      motor.stop();
-      delay(6000);
-    }
-  } else
-    digitalWrite(rgb.pinLED, LOW);
-  // *** -- ****** ** ***** -- *** //
+  } else if (!button_2.isPressed() && rescue) servo.write(0);
 
   // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
-  speed = acc.getY() > 0.22 ? 190 : 60;
+
+  speed = acc.getY() > 0.22 ? 180 : 60;
   speed_2 = acc.getY() > 0.22 ? 130 : 100;
+
+  if(IR1_value > black_tape && IR2_value > black_tape  && IR3_value > black_tape_2 && IR4_value > black_tape_2 + 15 && acc.getY() > 0.22) {
+    motor.go(120,120);
+    delay(700);
+  }
 
   // *** |-----------------------------------------------------------------------| *** //
 
   // |---------- LÓGICA DO SENSOR ULTRASÔNICO ----------| //
-  if (sensor.available())
-    if (sensor.getDistance() <= 5) path.redirectObstacle();
+  // if (sensor.available())
+  //   if (sensor.getDistance() <= 5) path.redirectObstacle();
 
   //  |---------- ------ -- ----- ----------- ----------| //
 
   //  |---------- LÓGICA DO CRUZAMENTO ----------| //
-  if (analogRead(IR1) > 450 && analogRead(IR4) > 600) {
+  if (IR1_value > black_tape && IR4_value > black_tape_2 + 15 && acc.getY() < 0.04) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
@@ -156,7 +159,7 @@ void loop() {
 
   //     |---------- LÓGICA DAS CURVAS DE 90 GRAUS ----------| //
 
-  else if (analogRead(IR1) > 600 && analogRead(IR2) > 600 && analogRead(IR4) < 450) {
+  else if (IR1_value > black_tape && IR2_value > black_tape && acc.getY() < 0.04) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
@@ -188,7 +191,7 @@ void loop() {
     leds.colorRight = "WHITE";
   }
 
-  else if (analogRead(IR3) > 600 && analogRead(IR4) > 600) {
+  else if (IR3_value > black_tape_2 + 15 && IR4_value > black_tape_2 + 15 && acc.getY() < 0.04) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
@@ -222,11 +225,11 @@ void loop() {
   //     |---------- ------ --- ----- -- -- ----- ----------| //
 
   // ****CURVA LEVE PARA  A ESQUERDA**** //
-  else if (IR1_value > black_tape) {
+  else if (IR1_value > black_tape && acc.getY() < 0.04) {
 
     unsigned long m = millis();
 
-    if (m - lastTime_left_300 >= 500) {
+    if (m - lastTime_left_300 >= 450) {
       motor.left90(speed_2);
       lastTime_left_300 = m;
     }
@@ -240,6 +243,7 @@ void loop() {
       motor.left90(speed_2);
       lastTime_left = m;
     }
+
   }
 
   // ****CURVA LEVE PARA  A DIREITA****  //
@@ -251,13 +255,13 @@ void loop() {
       motor.right90(speed_2);
       lastTime_right = m;
     }
-
+    
   }
 
-  else if (IR4_value > black_tape_2) {
+  else if (IR4_value > black_tape_2 && acc.getY() < 0.04) {
     unsigned long m = millis();
 
-    if (m - lastTime_right_300 >= 500) {
+    if (m - lastTime_right_300 >= 450) {
       motor.right90(speed_2);
       lastTime_right_300 = m;
     }
@@ -265,6 +269,14 @@ void loop() {
 
   else
     motor.go(speed, speed);
+}
+
+void readColor() {
+  digitalWrite(rgb.pinLED, HIGH);
+  rgb.detectColor();
+  Serial.println(rgb.getColor());
+  rgb.readColors();
+  delay(400);
 }
 
 void readIRS() {
@@ -281,7 +293,20 @@ void readIRS() {
   Serial.println(IR4_value);
   delay(500);
 }
+void readIRSwithNoMap() {
+  Serial.print("IR1: ");
+  Serial.println(analogRead(A0));
 
+  Serial.print("IR2: ");
+  Serial.println(analogRead(A1));
+
+  Serial.print("IR3: ");
+  Serial.println(analogRead(A2));
+
+  Serial.print("IR4: ");
+  Serial.println(analogRead(A3));
+  delay(500);
+}
 void readLDRS() {
   Serial.print("LDR 1: ");
   Serial.println(analogRead(A14));
