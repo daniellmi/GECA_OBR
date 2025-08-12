@@ -1,18 +1,13 @@
-#include "Motor.h"
-#include "Sensor.h"
-#include "Leds.h"
-#include "Path.h"
-#include "Lcd.h"
-#include "Accelerometer.h"
-#include "TCS3200.h"
-#include "Button.h"
+#include <Motor.h>
+#include <Path.h>
+#include <InfraRed.h>
+#include <Leds.h>
+#include <Sensor.h>
+#include <Accelerometer.h>
+#include <TCS3200.h>
+#include <Button.h>
 #include <Servo.h>
 #include <Wire.h>
-
-int IR1 = A0;
-int IR2 = A1;
-int IR3 = A2;
-int IR4 = A3;
 
 const int trigPin = 24;
 const int echoPin = 22;
@@ -21,40 +16,32 @@ unsigned int speed = 0;
 unsigned int speed_2 = 0;
 
 unsigned int black_tape = 45;    // valor mapeado dos infravermelhos esquerdos na linha preta
-unsigned int black_tape_2 = 55;  /// valor mapeado dos infravermelhos direitos na linha preta
+unsigned int black_tape_2 = 55;  // valor mapeado dos infravermelhos direitos na linha preta
 
 // -- CALCULA O TEMPO PARA CURVAS LEVES NA LINHA -- //
 unsigned long lastTime_right = 0;
 unsigned long lastTime_right_300 = 0;
-
 unsigned long lastTime_left = 0;
 unsigned long lastTime_left_300 = 0;
 
-// ** VALORES DOS IR'S A SEREM MAPEADOS ** //
-int IR1_value = 0;
-int IR2_value = 0;
-int IR3_value = 0;
-int IR4_value = 0;
-
 bool rescue = false;
-
-int delayCurva = 150;
+float standard_acc_value = 0.04;
 
 Motor motor;
+InfraRed infra;
 Leds leds;
 Path path;
 Accelerometer acc;
 TCS3200 rgb;
 Servo servo;
-Sensor sensor(trigPin, echoPin);
-Button button_1(26);  // LED
-Button button_2(30);  // garra
-// Lcd lcd(0x27, 16,2);
+Sensor ultra(trigPin, echoPin);
+Button led_button(26);   // LED
+Button claw_button(28);  // garra
 
 void setup() {
   Serial.begin(9600);
   Wire.begin();
-  servo.attach(28);
+  servo.attach(30);
   acc.begin();  // calibragem do acelerômetro
 
   pinMode(rgb.pinS0, OUTPUT);
@@ -79,72 +66,67 @@ void setup() {
 }
 
 void loop() {
-  IR1_value = map(analogRead(IR1), 0, 1023, 0, 100);
-  IR2_value = map(analogRead(IR2), 0, 1023, 0, 100);
-  IR3_value = map(analogRead(IR3), 0, 1023, 0, 100);
-  IR4_value = map(analogRead(IR4), 0, 1023, 0, 100);
 
-  // readIRS();
+  infra.mapInfraRed();
   if (!rescue) servo.write(100);
 
-  // *** -- LÓGICA DO BOTÃO -- *** //
+  // *** -- LÓGICA DO BOTÃO PARA ACENDER TCS3200-- *** //
+  if (led_button.isPressed()) {
 
-  if (button_1.isPressed()) {
     digitalWrite(rgb.pinLED, HIGH);
     rgb.detectColor();
 
     if (rgb.getColor().equals("RED")) {
-      Serial.println("Red");
       motor.stop();
-      delay(6000);
+      delay(7000);
     }
+  }
 
-  } else
+  else
     digitalWrite(rgb.pinLED, LOW);
-
   // *** -- ****** ** ***** -- *** //
 
   // COLOCAR AQUI A LÓGICA DO RESGATE (ACHAR PARÂMETRO PARA DETECTAR ARENA)
-  if (button_2.isPressed() && rescue) {
+  if (claw_button.isPressed() && rescue) {
     servo.write(100);
     motor.back(100, 100);
     delay(3000);
     motor.left(100, 100);
     delay(3000);
-
     // button_2.pressed = false;
-
-  } else if (!button_2.isPressed() && rescue) servo.write(0);
-
-  // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
-
-  speed = acc.getY() > 0.22 ? 180 : 60;
-  speed_2 = acc.getY() > 0.22 ? 130 : 100;
-
-  if(IR1_value > black_tape && IR2_value > black_tape  && IR3_value > black_tape_2 && IR4_value > black_tape_2 + 15 && acc.getY() > 0.22) {
-    motor.go(120,120);
-    delay(700);
   }
 
+  else if (!claw_button.isPressed() && rescue) servo.write(0);
+  // -----------------------------------------------------------------------
+
+  // *** CASO O ACELERÔMETRO CALCULE UMA VARIAÇÂO NO EIXO Y ( GANGORRA OU RAMPA) *** //
+  speed = acc.getY() > 0.22 ? 160 : 60;
+  speed_2 = acc.getY() > 0.22 ? 120 : 100;
+
+  // ROBÔ DÁ UM IMPULSO AO FIM DA GANGORRA, EVITANDO LEITURAS INDESEJADAS
+  if (infra.IR2_value > black_tape && infra.IR3_value > black_tape_2 && acc.getY() > 0.22) {
+    motor.go(120, 120);
+    delay(700);
+  }
   // *** |-----------------------------------------------------------------------| *** //
 
   // |---------- LÓGICA DO SENSOR ULTRASÔNICO ----------| //
-  // if (sensor.available())
-  //   if (sensor.getDistance() <= 5) path.redirectObstacle();
+  if (ultra.available())
+    if (ultra.getDistance() < 5) path.redirectObstacle();
 
   //  |---------- ------ -- ----- ----------- ----------| //
 
   //  |---------- LÓGICA DO CRUZAMENTO ----------| //
-  if (IR1_value > black_tape && IR4_value > black_tape_2 + 15 && acc.getY() < 0.04) {
+  if (infra.IR1_value > black_tape && infra.IR4_value > black_tape_2 + 15 && acc.getY() < standard_acc_value) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
 
     if (leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
 
-    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(900);
+    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(1200);
 
-    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
+    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(1200);
 
     // CASO NÃO HAJA FITA VERDE, O ROBÔ CONTINUA ANDANDO ATÉ DEIXAR O CRUZAMENTO
     else {
@@ -159,16 +141,16 @@ void loop() {
 
   //     |---------- LÓGICA DAS CURVAS DE 90 GRAUS ----------| //
 
-  else if (IR1_value > black_tape && IR2_value > black_tape && acc.getY() < 0.04) {
+  else if (infra.IR1_value > black_tape && infra.IR2_value > black_tape && acc.getY() < standard_acc_value) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
 
     if (leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
 
-    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(900);
+    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(1200);
 
-    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
+    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(1200);
 
     else {
       motor.go(80, 80);
@@ -191,16 +173,16 @@ void loop() {
     leds.colorRight = "WHITE";
   }
 
-  else if (IR3_value > black_tape_2 + 15 && IR4_value > black_tape_2 + 15 && acc.getY() < 0.04) {
+  else if (infra.IR3_value > black_tape_2 + 15 && infra.IR4_value > black_tape_2 + 15 && acc.getY() < standard_acc_value) {
 
     path.moveBackToReadColor();
     leds.ReadLdrOnGreen();
 
     if (leds.colorLeft.equals("GREEN") && leds.colorRight.equals("GREEN")) path.fullTurn();
 
-    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(900);
+    else if (leds.colorLeft.equals("GREEN")) path.turnOnLeft90(1200);
 
-    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(900);
+    else if (leds.colorRight.equals("GREEN")) path.turnOnRight90(1200);
 
     else {
       motor.go(80, 80);
@@ -225,7 +207,7 @@ void loop() {
   //     |---------- ------ --- ----- -- -- ----- ----------| //
 
   // ****CURVA LEVE PARA  A ESQUERDA**** //
-  else if (IR1_value > black_tape && acc.getY() < 0.04) {
+  else if (infra.IR1_value > black_tape - 10 && acc.getY() < standard_acc_value) {
 
     unsigned long m = millis();
 
@@ -235,7 +217,7 @@ void loop() {
     }
   }
 
-  else if (IR2_value > black_tape) {
+  else if (infra.IR2_value > black_tape) {
 
     unsigned long m = millis();
 
@@ -247,7 +229,7 @@ void loop() {
   }
 
   // ****CURVA LEVE PARA  A DIREITA****  //
-  else if (IR3_value > black_tape_2) {
+  else if (infra.IR3_value > black_tape_2) {
 
     unsigned long m = millis();
 
@@ -255,10 +237,10 @@ void loop() {
       motor.right90(speed_2);
       lastTime_right = m;
     }
-    
+
   }
 
-  else if (IR4_value > black_tape_2 && acc.getY() < 0.04) {
+  else if (infra.IR4_value > black_tape_2 && acc.getY() < standard_acc_value) {
     unsigned long m = millis();
 
     if (m - lastTime_right_300 >= 450) {
@@ -275,38 +257,9 @@ void readColor() {
   digitalWrite(rgb.pinLED, HIGH);
   rgb.detectColor();
   Serial.println(rgb.getColor());
-  rgb.readColors();
   delay(400);
 }
 
-void readIRS() {
-  Serial.print("IR1: ");
-  Serial.println(IR1_value);
-
-  Serial.print("IR2: ");
-  Serial.println(IR2_value);
-
-  Serial.print("IR3: ");
-  Serial.println(IR3_value);
-
-  Serial.print("IR4: ");
-  Serial.println(IR4_value);
-  delay(500);
-}
-void readIRSwithNoMap() {
-  Serial.print("IR1: ");
-  Serial.println(analogRead(A0));
-
-  Serial.print("IR2: ");
-  Serial.println(analogRead(A1));
-
-  Serial.print("IR3: ");
-  Serial.println(analogRead(A2));
-
-  Serial.print("IR4: ");
-  Serial.println(analogRead(A3));
-  delay(500);
-}
 void readLDRS() {
   Serial.print("LDR 1: ");
   Serial.println(analogRead(A14));
