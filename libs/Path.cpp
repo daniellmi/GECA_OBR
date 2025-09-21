@@ -19,10 +19,10 @@ void Path::intersection(int d) {
 
   do {
 
-    left(100, 100);
+    left(120, 120);
     delay(d);
 
-    right(100, 100);
+    right(120, 120);
     delay(d);
 
     IR3ValueForIntersection = analogRead(IR3);
@@ -40,19 +40,19 @@ void Path::redirectObstacle() {
   delay(700);
 
   right(120, 120);
-  delay(1900);
+  delay(2200);
 
-  go(100, 100);
-  delay(2000);
+  go(140, 140);
+  delay(2200);
 
-  left(120, 120);
-  delay(2100);
+  left(130, 130);
+  delay(2450);
 
   go(120, 120);
-  delay(3600);
+  delay(4200);
 
-  left(120, 120);
-  delay(2100);
+  left(140, 140);
+  delay(1800);
 
   while (true) {
     go(80, 80);
@@ -63,7 +63,7 @@ void Path::redirectObstacle() {
       go(100, 100);
       delay(300);
 
-      this->turnOnRight90(900);
+      this->turnOn90(RIGHT90, 900);
 
       back(140, 120);
       delay(250);
@@ -72,37 +72,27 @@ void Path::redirectObstacle() {
   }
 }
 
-void Path::turnOnRight90(int d) {
+void Path::turnOn90(Direction90 direction, int d) {
   go(120, 120);
   delay(d);
 
   while (true) {
-    right(100, 100);
-    if (analogRead(IR3) > 500) break;
+   if(direction == RIGHT90) right(130, 130);
+   else if(direction == LEFT90) left(130,130);
+
+    if (analogRead(IR1) > 500 || analogRead(IR3) > 500) break;
   }
 
-  back(100, 100);
+ back(100, 100);
   delay(350);
 }
 
-void Path::turnOnLeft90(int d) {
-  go(120, 120);
-  delay(d);
-
-  while (true) {
-    left(100, 100);
-    if (analogRead(IR2) > 500) break;
-  }
-
-  back(100, 100);
-  delay(350);
-}
 void Path::fullTurn() {
   right(120, 120);
   delay(1000);
 
   while (true) {
-    right(110, 110);
+    right(180, 180);
     if (analogRead(IR3) > 500) break;
   }
 }

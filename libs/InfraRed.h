@@ -2,15 +2,12 @@
 #define INFRARED_H
 
 class InfraRed {
-
-protected:
-
+  
+public:
   int IR1;
   int IR2;
   int IR3;
   int IR4;
-
-public:
 
   int IR1_value = 0;
   int IR2_value = 0;
@@ -18,9 +15,7 @@ public:
   int IR4_value = 0;
 
   InfraRed();
-  void mapInfraRed();
   void readIRS();
-  void readIRSwithNoMap();
 
 };
 

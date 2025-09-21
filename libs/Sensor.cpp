@@ -8,7 +8,10 @@ Sensor::Sensor(const int trigger, const int echo) : Ultrasonic(trigger, echo) {
 }
 
 int Sensor::getDistance() {
+
   distance = read(CM);
+  if(distance <= 0) return -1;
+
   return distance;
 }
 

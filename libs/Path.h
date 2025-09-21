@@ -7,6 +7,19 @@
 extern unsigned int black_tape;
 extern unsigned int black_tape_2;
 
+ enum Direction90 {
+  RIGHT90,
+  LEFT90
+ };
+
+enum TurnDirection { NONE,
+                     LEFT,
+                     RIGHT,
+                     EXLEFT,
+                     EXRIGHT
+};
+
+
 class Path : protected Motor, protected InfraRed {
 
 private:
@@ -24,8 +37,7 @@ public:
   void intersection(int d);
   void redirectObstacle();
 
-  void turnOnRight90(int d);
-  void turnOnLeft90(int d);
+  void turnOn90(Direction90 direction, int d);
 
   void fullTurn();
   void moveBackToReadColor();

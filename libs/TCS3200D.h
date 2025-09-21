@@ -1,21 +1,16 @@
-#ifndef TCS3200_H
-#define TCS3200_H
+#ifndef TCS3200D_H
+#define TCS3200D_H
 
-class TCS3200 {
+class TCS3200D {
 
-private:
-
-  String color;
-  unsigned int color_error;
+public:
 
   unsigned int red;
   unsigned int green;
   unsigned int blue;
   unsigned int white;
+  unsigned int color_error;
 
-  unsigned int total;
-
-public:
 
   int pinS0;
   int pinS1;
@@ -24,10 +19,8 @@ public:
   int pinOut;
   int pinLED;
 
-  TCS3200();
+  TCS3200D(int s0, int s1, int s2, int s3, int out, int led);
   void detectColor();
   void readColor();
-  String getColor();
-
 };
 #endif

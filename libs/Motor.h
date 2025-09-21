@@ -6,8 +6,8 @@ class Motor {
 private:
 
   int ENA = 2;  // LOW HIGH
-  int IN1 = 3;
-  int IN2 = 4;
+  int IN1 = 32;
+  int IN2 = 34;
   int IN3 = 5;
   int IN4 = 6;
   int ENB = 7;

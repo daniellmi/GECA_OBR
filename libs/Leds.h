@@ -8,15 +8,7 @@ class Leds {
 
 private:
 
-  int LEFT_GREEN;
-  int LEFT_RED;
-  int LEFT_BLUE;
-
-  int RIGHT_RED;
-  int RIGHT_GREEN;
-  int RIGHT_BLUE;
-
-  // |--- VALORES DAS LEDS ESQUERDAS NO BRANCO ---|
+ // |--- VALORES DAS LEDS ESQUERDAS NO BRANCO ---|
   int LEFT_RED_WHITE_VALUE;
   int LEFT_GREEN_WHITE_VALUE;
   int LEFT_BLUE_WHITE_VALUE;
@@ -27,9 +19,20 @@ private:
   int RIGHT_BLUE_WHITE_VALUE;
 
 public:
+ 
+  int LEFT_GREEN;
+  int LEFT_RED;
+  int LEFT_BLUE;
+
+  int RIGHT_RED;
+  int RIGHT_GREEN;
+  int RIGHT_BLUE;
 
   String colorRight;
   String colorLeft;
+
+  bool redTape = false;
+
 
   Leds();
   void calibratingLeds();

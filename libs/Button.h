@@ -7,11 +7,12 @@ private:
 
   int button;
   int lastButtonState;
-  bool pressed;
   unsigned long lastPressTime;
   unsigned long debounceDelay;
 
 public:
+
+  bool pressed;
 
   Button(int b);
   bool isPressed();
